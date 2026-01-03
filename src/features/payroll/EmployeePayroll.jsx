@@ -1,42 +1,57 @@
 import React from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../../api/db';
-import { Card } from '../../components/Card';
-import { DollarSign, Info } from 'lucide-react';
 
-export default function EmployeePayroll({ employeeId }) {
-  const salaryData = useLiveQuery(
-    () => db.payroll.where("employeeId").equals(employeeId).first(),
-    [employeeId]
+export default function EmployeePayroll() {
+  const sessionUser = JSON.parse(localStorage.getItem('currentUser'));
+  
+  // Real-time hook to fetch salary for the logged-in user
+  const data = useLiveQuery(
+    () => db.payroll.where("employeeId").equals(sessionUser?.employeeId).first(),
+    [sessionUser]
   );
 
-  return (
-    <Card className="h-full">
-      <div className="flex items-center justify-between mb-6">
-        <h3 className="text-lg font-bold text-slate-800 flex items-center gap-2">
-          <DollarSign className="text-emerald-600" /> My Salary Structure
-        </h3>
-        <span className="text-[10px] bg-slate-100 text-slate-500 px-2 py-1 rounded font-bold uppercase">Read Only</span>
-      </div>
+  // Math components
+  const wage = data?.baseSalary || 0;
+  const basic = wage * 0.5;
+  const hra = basic * 0.5;
+  const pf = wage > 0 ? 3000 : 0;
+  const tax = wage > 0 ? 200 : 0;
 
-      {!salaryData ? (
-        <div className="text-center py-6">
-          <p className="text-slate-400 text-sm italic">Salary details not yet updated by HR.</p>
-        </div>
-      ) : (
-        <div className="space-y-4">
-          <div className="flex justify-between items-center p-3 bg-slate-50 rounded-lg">
-            <span className="text-slate-600 text-sm font-medium">Monthly Base Salary</span>
-            <span className="text-xl font-bold text-slate-900">${salaryData.baseSalary}</span>
+  return (
+    <div className="space-y-10 animate-in fade-in">
+       <div className="flex gap-12 items-center">
+          <div className="bg-slate-900 text-white p-6 rounded-sm">
+             <p className="text-[10px] uppercase font-bold opacity-50 mb-1">Gross Monthly</p>
+             <p className="text-3xl font-black italic">₹{wage}</p>
           </div>
-          <div className="flex items-start gap-2 p-3 bg-blue-50 rounded-lg text-blue-700">
-            <Info size={16} className="mt-0.5 shrink-0" />
-            <p className="text-xs">
-              This is your fixed salary structure. Monthly disbursements are subject to attendance records and leave approvals.
-            </p>
+          <div className="text-slate-400 italic">
+             <p className="text-sm">Yearly Projection</p>
+             <p className="text-xl font-bold">₹{wage * 12}</p>
           </div>
-        </div>
-      )}
-    </Card>
+       </div>
+
+       <div className="grid grid-cols-2 gap-20">
+          <div className="space-y-4">
+             <h4 className="text-[10px] font-black uppercase text-slate-400 border-b pb-2">Earnings Breakdown</h4>
+             <SalaryLine label="Basic Salary (50%)" value={basic} />
+             <SalaryLine label="HRA (50% of Basic)" value={hra} />
+          </div>
+          <div className="space-y-4">
+             <h4 className="text-[10px] font-black uppercase text-slate-400 border-b pb-2">Standard Deductions</h4>
+             <SalaryLine label="Provident Fund" value={pf} isRed />
+             <SalaryLine label="Professional Tax" value={tax} isRed />
+          </div>
+       </div>
+    </div>
+  );
+}
+
+function SalaryLine({ label, value, isRed }) {
+  return (
+    <div className="flex justify-between text-sm italic font-bold">
+      <span className="text-slate-500">{label}</span>
+      <span className={isRed ? 'text-rose-500' : 'text-slate-900'}>{isRed ? '-' : ''}₹{value}</span>
+    </div>
   );
 }
