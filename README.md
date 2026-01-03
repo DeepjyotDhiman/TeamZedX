@@ -49,7 +49,7 @@ The system wipes all IndexedDB records and refreshes to rebuild a clean schema.
 1. Repository Setup
 Bash
 
-git clone https://github.com/your-username/dayflow-hrms.git
+git clone https://github.com/DeepjyotDhiman/dayflow-hrms.git
 cd dayflow-hrms
 npm install
 2. Assets
