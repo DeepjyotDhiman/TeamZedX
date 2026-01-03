@@ -1,8 +1,9 @@
+import React from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useNavigate } from 'react-router-dom';
 import { loginSchema } from './authSchema';
 import { db } from '../../api/db';
-import { useNavigate } from 'react-router-dom';
 
 export default function Login() {
   const navigate = useNavigate();
@@ -10,30 +11,27 @@ export default function Login() {
   const { 
     register, 
     handleSubmit, 
-    formState: { errors } 
+    formState: { errors, isSubmitting } 
   } = useForm({
     resolver: zodResolver(loginSchema)
   });
 
   const onSubmit = async (data) => {
     try {
-      // Find the user by email in our local Dexie DB
       const user = await db.users.where("email").equals(data.email).first();
 
-      // Simple password check (In a production app, passwords would be hashed)
       if (user && user.password === data.password) {
-        // Save the current session to localStorage
+        // Save current session
         localStorage.setItem('currentUser', JSON.stringify(user));
         
-        // Redirect based on role defined in the document 
+        // Redirect based on role
         if (user.role === 'admin') {
           navigate('/admin');
         } else {
           navigate('/dashboard');
         }
       } else {
-        // Display error for incorrect credentials 
-        alert("Invalid email or password. Please try again.");
+        alert("Invalid email or password.");
       }
     } catch (err) {
       console.error("Login error:", err);
@@ -42,54 +40,51 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-50 p-4">
-      <div className="bg-white p-8 rounded-xl shadow-md w-full max-w-md border border-slate-200">
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-blue-600">Dayflow</h1>
-          <p className="text-slate-500 mt-2">Every workday, perfectly aligned. [cite: 2]</p>
-        </div>
-
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-          <div className="space-y-1">
-            <label className="text-sm font-semibold text-slate-700">Email Address</label>
+    <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-6 text-center">
+      <h1 className="text-xl font-bold text-slate-500 mb-10 italic">Human Resource Management System</h1>
+      
+      <div className="bg-white border border-slate-200 p-10 rounded-sm shadow-sm w-full max-w-sm">
+        <h2 className="text-center text-slate-400 font-bold mb-8 italic text-sm underline decoration-slate-100">Sign in Page</h2>
+        
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 text-left">
+          <div className="group">
+            <label className="text-[10px] text-slate-400 font-bold uppercase">Email Address</label>
             <input 
-              {...register("email")} 
-              type="email"
-              className="w-full p-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none border-slate-300 transition-all" 
-              placeholder="you@company.com" 
+              {...register("email")}
+              type="email" 
+              placeholder="you@company.com"
+              className="w-full border-b border-slate-300 py-1 outline-none text-sm italic focus:border-rose-300 transition-colors" 
             />
-            {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email.message}</p>}
+            {errors.email && <p className="text-red-500 text-[10px] mt-1">{errors.email.message}</p>}
           </div>
-
-          <div className="space-y-1">
-            <label className="text-sm font-semibold text-slate-700">Password</label>
+          
+          <div className="group">
+            <label className="text-[10px] text-slate-400 font-bold uppercase">Password</label>
             <input 
-              {...register("password")} 
+              {...register("password")}
               type="password" 
-              className="w-full p-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none border-slate-300 transition-all" 
               placeholder="••••••••"
+              className="w-full border-b border-slate-300 py-1 outline-none text-sm italic focus:border-rose-300 transition-colors" 
             />
-            {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password.message}</p>}
+            {errors.password && <p className="text-red-500 text-[10px] mt-1">{errors.password.message}</p>}
           </div>
 
           <button 
-            type="submit" 
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg transition-colors shadow-lg shadow-blue-100"
+            type="submit"
+            disabled={isSubmitting}
+            className="w-full bg-rose-400 text-white font-bold py-2 mt-4 rounded-sm uppercase tracking-widest text-[10px] shadow-lg shadow-rose-100 hover:bg-rose-500 transition-all disabled:opacity-50"
           >
-            Sign In
+            {isSubmitting ? "Signing In..." : "Sign In"}
           </button>
+          
+          <div className="flex justify-between mt-6 text-[10px] italic">
+             <span onClick={() => navigate('/register')} className="text-rose-400 cursor-pointer font-bold underline">Create New Account</span>
+             <span className="text-slate-300 cursor-not-allowed">Forgot Password?</span>
+          </div>
         </form>
-
-        <p className="text-center text-sm text-slate-600 mt-6">
-          Don't have an account?{" "}
-          <button 
-            onClick={() => navigate('/register')} 
-            className="text-blue-600 font-semibold hover:underline"
-          >
-            Register here
-          </button>
-        </p>
       </div>
+      
+      <p className="mt-10 text-[9px] text-slate-300 font-bold uppercase tracking-widest">© 2026 Dayflow HR Solutions</p>
     </div>
   );
 }

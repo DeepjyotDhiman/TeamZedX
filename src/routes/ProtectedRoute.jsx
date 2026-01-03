@@ -1,3 +1,4 @@
+import React from 'react';
 import { Navigate } from 'react-router-dom';
 
 export default function ProtectedRoute({ children, allowedRole }) {
@@ -8,9 +9,10 @@ export default function ProtectedRoute({ children, allowedRole }) {
     return <Navigate to="/login" replace />;
   }
 
-  // If logged in but wrong role, send to their respective dashboard
+  // If logged in but wrong role, redirect to their assigned dashboard
   if (allowedRole && user.role !== allowedRole) {
-    return <Navigate to={user.role === 'admin' ? '/admin' : '/dashboard'} replace />;
+    const redirectPath = user.role === 'admin' ? '/admin' : '/dashboard';
+    return <Navigate to={redirectPath} replace />;
   }
 
   return children;

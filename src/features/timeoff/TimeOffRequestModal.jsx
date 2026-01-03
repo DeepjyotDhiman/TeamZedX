@@ -1,65 +1,55 @@
-import React from 'react';
-import { Upload, X } from 'lucide-react';
+import React, { useState } from 'react';
+import { db } from '../../api/db';
+import { X } from 'lucide-react';
 
 export default function TimeOffRequestModal({ isOpen, onClose }) {
+  const [formData, setFormData] = useState({ type: 'Paid time off', start: '', end: '' });
+  const user = JSON.parse(localStorage.getItem('currentUser'));
+
   if (!isOpen) return null;
 
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      // Logic to actually save to your Dexie database
+      await db.leave.add({
+        employeeId: user.employeeId,
+        employeeName: user.fullName,
+        leaveType: formData.type,
+        startDate: formData.start,
+        endDate: formData.end,
+        status: 'Pending'
+      });
+      alert("Leave Request Submitted!");
+      onClose();
+    } catch (err) {
+      alert("Error submitting: " + err);
+    }
+  };
+
   return (
-    <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-[2.5rem] shadow-2xl w-full max-w-lg border border-slate-200 overflow-hidden">
-        {/* Modal Header */}
-        <div className="px-10 py-5 flex justify-between items-center border-b border-slate-100">
-          <h3 className="text-rose-400 font-bold italic text-sm">Time off Type Request</h3>
-          <button onClick={onClose} className="text-slate-300 hover:text-slate-500"><X size={20}/></button>
+    <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center">
+      <form onSubmit={handleSubmit} className="bg-white rounded-[2.5rem] w-full max-w-lg overflow-hidden border">
+        <div className="px-10 py-5 flex justify-between border-b">
+          <h3 className="text-rose-400 font-bold italic">Time off Request</h3>
+          <button type="button" onClick={onClose}><X size={20}/></button>
         </div>
-
-        <div className="p-10 space-y-8">
-          <div className="grid grid-cols-2 gap-y-6 text-[11px]">
-            <span className="text-slate-400 font-bold uppercase">Employee</span>
-            <span className="text-blue-500 font-bold italic">[Employee]</span>
-
-            <span className="text-slate-400 font-bold uppercase">Time off Type</span>
-            <span className="text-blue-500 font-bold italic">[Paid time off]</span>
-
-            <span className="text-slate-400 font-bold uppercase">Validity Period</span>
-            <div className="flex items-center gap-2">
-              <span className="text-blue-500 font-bold italic">May 13</span>
-              <span className="text-slate-300 font-bold italic">To</span>
-              <span className="text-blue-500 font-bold italic">May 14</span>
-            </div>
-
-            <span className="text-slate-400 font-bold uppercase">Allocation</span>
-            <div className="flex gap-1 font-black italic">
-               <span className="text-blue-500">01.00</span>
-               <span className="text-slate-400">Days</span>
-            </div>
-
-            {/* Attachment Button for Sick Leave */}
-            <span className="text-slate-400 font-bold uppercase">Attachment</span>
-            <div className="flex items-center gap-3">
-              <button className="bg-blue-600 p-2 rounded text-white shadow-md shadow-blue-100">
-                <Upload size={14}/>
-              </button>
-              <span className="text-slate-400 text-[9px] italic font-bold">
-                (For sick leave certificate)
-              </span>
-            </div>
-          </div>
-
-          {/* Action Buttons */}
-          <div className="flex gap-4 pt-6">
-            <button className="bg-rose-400 text-white px-10 py-2 rounded-sm text-[10px] font-bold uppercase shadow-lg shadow-rose-100 hover:bg-rose-500 transition-all">
-              Submit
-            </button>
-            <button 
-              onClick={onClose} 
-              className="border border-slate-200 px-10 py-2 rounded-sm text-[10px] font-bold uppercase text-slate-400 hover:bg-slate-50 transition-all"
-            >
-              Discard
-            </button>
+        <div className="p-10 space-y-6">
+          <select 
+            onChange={(e) => setFormData({...formData, type: e.target.value})}
+            className="w-full border-b py-2 text-sm italic outline-none">
+            <option>Paid time off</option>
+            <option>Sick time off</option>
+          </select>
+          <input required type="date" onChange={(e) => setFormData({...formData, start: e.target.value})} className="w-full border-b py-2 outline-none" />
+          <input required type="date" onChange={(e) => setFormData({...formData, end: e.target.value})} className="w-full border-b py-2 outline-none" />
+          
+          <div className="flex gap-4 pt-4">
+            <button type="submit" className="bg-rose-400 text-white px-10 py-2 rounded-sm text-[10px] font-bold uppercase shadow-lg">Submit</button>
+            <button type="button" onClick={onClose} className="border px-10 py-2 text-[10px] text-slate-400 font-bold uppercase">Discard</button>
           </div>
         </div>
-      </div>
+      </form>
     </div>
   );
 }

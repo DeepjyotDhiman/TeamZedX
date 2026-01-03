@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Users, Clock, Calendar, User, LogOut } from 'lucide-react';
 import AttendanceList from '../features/attendance/AttendanceList';
@@ -7,18 +7,36 @@ import ProfilePage from './ProfilePage';
 import EmployeeGrid from '../components/EmployeeGrid';
 
 export default function EmployeeDashboard() {
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('directory');
   const [isCheckedIn, setIsCheckedIn] = useState(false);
-  const navigate = useNavigate();
+  const [user, setUser] = useState(null);
 
-  const handleLogout = () => navigate('/login');
+  useEffect(() => {
+    const session = JSON.parse(localStorage.getItem('currentUser'));
+    if (!session) navigate('/login');
+    setUser(session);
+    setIsCheckedIn(session?.status === 'present');
+  }, [navigate]);
+
+  const handleLogout = () => {
+    localStorage.removeItem('currentUser');
+    navigate('/login');
+  };
+
+  const toggleCheckIn = () => {
+    const newStatus = !isCheckedIn;
+    setIsCheckedIn(newStatus);
+    const updatedUser = { ...user, status: newStatus ? 'present' : 'absent' };
+    localStorage.setItem('currentUser', JSON.stringify(updatedUser)); // Sync status
+  };
 
   return (
     <div className="flex min-h-screen bg-[#F8FAFC]">
       <aside className="w-64 bg-white border-r border-slate-200 flex flex-col fixed h-full shadow-sm">
         <div className="p-6 border-b border-slate-100">
-          <div className="border border-slate-300 px-3 py-1 text-[10px] font-bold text-slate-400 uppercase tracking-tighter">Company Logo</div>
-          <p className="text-[10px] text-blue-500 font-bold mt-2 uppercase italic">Employee Portal</p>
+          <div className="border border-slate-300 px-3 py-1 text-[10px] font-bold text-slate-400 uppercase tracking-tighter text-center">Company Logo</div>
+          <p className="text-[10px] text-blue-500 font-bold mt-2 uppercase italic text-center">Employee Portal</p>
         </div>
 
         <nav className="flex-1 p-4 space-y-1">
@@ -28,12 +46,12 @@ export default function EmployeeDashboard() {
           <SidebarBtn active={activeTab === 'profile'} onClick={() => setActiveTab('profile')} icon={<User size={18}/>} label="My Profile" />
         </nav>
 
-        {/* Sidebar Attendance Tray */}
+        {/* Attendance Tray - Unique to Employee */}
         <div className="p-4 border-t border-slate-100">
           <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100 mb-4 text-center">
             <p className="text-[9px] font-black text-slate-300 uppercase mb-2">Since 00:00 PM</p>
             <button 
-              onClick={() => setIsCheckedIn(!isCheckedIn)}
+              onClick={toggleCheckIn}
               className={`w-full py-2 rounded-lg text-[10px] font-bold uppercase transition-all shadow-sm ${
                 isCheckedIn ? 'bg-rose-50 text-rose-500 border border-rose-100' : 'bg-emerald-50 text-emerald-600 border border-emerald-100'
               }`}
@@ -55,11 +73,12 @@ export default function EmployeeDashboard() {
              <span className="text-[10px] font-black text-slate-400 uppercase tracking-tighter">Status: {isCheckedIn ? 'Present' : 'Absent'}</span>
           </div>
         </header>
+
         <div className="p-8">
           {activeTab === 'directory' && <EmployeeGrid isAdmin={false} />}
           {activeTab === 'attendance' && <AttendanceList isAdmin={false} />}
           {activeTab === 'timeoff' && <TimeOffView isAdmin={false} />}
-          {activeTab === 'profile' && <ProfilePage isAdmin={false} />}
+          {activeTab === 'profile' && <ProfilePage />}
         </div>
       </main>
     </div>

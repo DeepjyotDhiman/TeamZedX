@@ -1,42 +1,41 @@
 import React from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../../api/db';
-import { Card } from '../../components/Card';
-import { DollarSign, Info } from 'lucide-react';
 
-export default function EmployeePayroll({ employeeId }) {
-  const salaryData = useLiveQuery(
-    () => db.payroll.where("employeeId").equals(employeeId).first(),
-    [employeeId]
+export default function EmployeePayroll() {
+  const user = JSON.parse(localStorage.getItem('currentUser'));
+  
+  // Use useLiveQuery to prevent white screen while loading
+  const payroll = useLiveQuery(
+    () => db.payroll.where("employeeId").equals(user?.employeeId).first(),
+    [user]
   );
 
-  return (
-    <Card className="h-full">
-      <div className="flex items-center justify-between mb-6">
-        <h3 className="text-lg font-bold text-slate-800 flex items-center gap-2">
-          <DollarSign className="text-emerald-600" /> My Salary Structure
-        </h3>
-        <span className="text-[10px] bg-slate-100 text-slate-500 px-2 py-1 rounded font-bold uppercase">Read Only</span>
-      </div>
+  // Default values if HR hasn't set the salary yet
+  const wage = payroll?.baseSalary || 0;
+  const basic = wage * 0.5;
+  const hra = basic * 0.5;
 
-      {!salaryData ? (
-        <div className="text-center py-6">
-          <p className="text-slate-400 text-sm italic">Salary details not yet updated by HR.</p>
-        </div>
-      ) : (
-        <div className="space-y-4">
-          <div className="flex justify-between items-center p-3 bg-slate-50 rounded-lg">
-            <span className="text-slate-600 text-sm font-medium">Monthly Base Salary</span>
-            <span className="text-xl font-bold text-slate-900">${salaryData.baseSalary}</span>
+  return (
+    <div className="space-y-8 animate-in fade-in">
+       <div className="flex gap-12 text-sm italic font-bold">
+          <p>Month Wage: <span className="border-b border-slate-300 px-4">₹{wage}</span></p>
+          <p>Yearly Wage: <span className="border-b border-slate-300 px-4">₹{wage * 12}</span></p>
+       </div>
+       {wage === 0 && <p className="text-[10px] text-rose-400 italic">No salary data found. HR needs to set your wage.</p>}
+       
+       <div className="grid grid-cols-2 gap-10">
+          <div className="space-y-4">
+             <h4 className="font-bold text-slate-800 text-sm border-b pb-1">Salary Components</h4>
+             <div className="flex justify-between border-b pb-1 text-xs"><span>Basic Salary</span> <span>₹{basic}</span></div>
+             <div className="flex justify-between border-b pb-1 text-xs"><span>HRA</span> <span>₹{hra}</span></div>
           </div>
-          <div className="flex items-start gap-2 p-3 bg-blue-50 rounded-lg text-blue-700">
-            <Info size={16} className="mt-0.5 shrink-0" />
-            <p className="text-xs">
-              This is your fixed salary structure. Monthly disbursements are subject to attendance records and leave approvals.
-            </p>
+          <div className="space-y-4">
+             <h4 className="font-bold text-slate-800 text-sm border-b pb-1">Deductions</h4>
+             <div className="flex justify-between border-b pb-1 text-xs text-rose-500"><span>PF</span> <span>-₹3000</span></div>
+             <div className="flex justify-between border-b pb-1 text-xs text-rose-500"><span>Professional Tax</span> <span>-₹200</span></div>
           </div>
-        </div>
-      )}
-    </Card>
+       </div>
+    </div>
   );
 }

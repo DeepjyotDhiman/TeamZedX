@@ -2,6 +2,7 @@ import React from 'react';
 import { Search, Users } from 'lucide-react';
 
 export default function EmployeeGrid({ isAdmin }) {
+  // Mock data as per your system requirement
   const employees = [
     { id: 'OIPR20260001', name: 'Priyank Garala', status: 'present' },
     { id: 'OIDS20260002', name: 'Dependable Sandpiper', status: 'leave' },
@@ -41,8 +42,8 @@ export default function EmployeeGrid({ isAdmin }) {
             
             {isAdmin && (
                <div className="mt-4 pt-4 border-t border-slate-50 flex gap-3">
-                  <button className="text-[9px] font-bold text-rose-400 uppercase">Edit Profile</button>
-                  <button className="text-[9px] font-bold text-slate-400 uppercase">Payroll</button>
+                  <button className="text-[9px] font-bold text-rose-400 uppercase hover:underline">Edit Profile</button>
+                  <button className="text-[9px] font-bold text-slate-400 uppercase hover:underline">Payroll</button>
                </div>
             )}
           </div>

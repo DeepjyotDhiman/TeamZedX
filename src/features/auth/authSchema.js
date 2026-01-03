@@ -5,30 +5,30 @@ export const signUpSchema = z.object({
   employeeId: z
     .string()
     .min(3, "ID must be at least 3 characters")
-    .regex(/^[A-Z0-9]+$/, "ID must be alphanumeric (e.g., EMP001)"), // Requirement [cite: 28]
+    .regex(/^[A-Z0-9]+$/, "ID must be alphanumeric (e.g., EMP001)"),
   
   fullName: z.string().min(2, "Full name is required"),
   
-  email: z.string().email("Invalid email address"), // Requirement [cite: 30, 34]
+  email: z.string().email("Invalid email address"),
   
   password: z
     .string()
     .min(8, "Password must be at least 8 characters")
     .regex(/[A-Z]/, "Must contain at least one uppercase letter")
-    .regex(/[0-9]/, "Must contain at least one number"), // Security rules [cite: 33]
+    .regex(/[0-9]/, "Must contain at least one number"),
   
   role: z.enum(["admin", "employee"], {
-    errorMap: () => ({ message: "Please select a valid role" }), // Requirement 
+    errorMap: () => ({ message: "Please select a valid role" }),
   }),
 });
 
-// 2. Sign In Schema [cite: 35, 36]
+// 2. Login Schema
 export const loginSchema = z.object({
   email: z.string().email("Invalid email address"),
   password: z.string().min(1, "Password is required"),
 });
 
-// 3. Leave Request Schema (Added based on Page 4 of your document) [cite: 78, 81, 82]
+// 3. Leave Request Schema
 export const leaveSchema = z.object({
   leaveType: z.enum(["Paid", "Sick", "Unpaid"]),
   startDate: z.string().min(1, "Start date is required"),
@@ -40,5 +40,5 @@ export const leaveSchema = z.object({
   return end >= start;
 }, {
   message: "End date cannot be before the start date",
-  path: ["endDate"], // Error will show on the endDate field
+  path: ["endDate"],
 });
