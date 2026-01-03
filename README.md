@@ -42,12 +42,10 @@ Defensive Architecture: Built-in "Hard Reset" functionality to force-recreate da
 
 📸 System Architecture
 🚀 Quick Start & Installation
-1. Clone & Install
-Bash
 
-git clone https://github.com/your-username/dayflow-hrms.git
-cd dayflow-hrms
-npm install
+git clone https://github.com/DeepjyotDhiman/dayflow-hrms.git
+cd dayflow
+
 2. Configure Assets
 Ensure your company logo is placed at: src/assets/Logo.png
 
@@ -75,7 +73,6 @@ Click "System Configuration" at the bottom of the sidebar.
 
 Click "Hard Reset Database".
 
-The system will wipe all old data and recreate a fresh schema on the next login.
+The system will wipe all old data and recreate a fresh schema on the ne
+Team Zedx - Full Stack Archit
 
-👨‍💻 Project Developers
-Team Zedx - Full Stack Architecture & UI Design

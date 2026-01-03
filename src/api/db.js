@@ -1,37 +1,24 @@
 import Dexie from 'dexie';
 
+// We jump to Version 10 to override all your previous 1-5 versions
+// and ensure a clean slate for the hackathon demo.
 export const db = new Dexie('DayflowHRMS');
 
-// Define tables and indexes for efficient searching
-db.version(1).stores({
-  users: '++id, &employeeId, &email, role', // & denotes unique index
-  attendance: '++id, employeeId, date, status',
-  leaveRequests: '++id, employeeId, status, startDate, endDate'
-});
-db.version(2).stores({
-  users: '++id, &employeeId, &email, role', 
-  // Added [employeeId+date] for fast daily attendance lookups
-  attendance: '++id, [employeeId+date], status', 
-  leave: '++id, employeeId, status'
-});
-db.version(3).stores({
-  users: '++id, &employeeId, &email, role',
-  attendance: '++id, [employeeId+date], status',
-  leave: '++id, employeeId, status',
-  // New table for salary details
-  payroll: '++id, &employeeId, baseSalary' 
-});
-db.version(4).stores({
-  // & = unique, ++ = auto-increment
-  users: '++id, &employeeId, &email, role', 
-  // date is indexed separately so Admin can query "Today's Attendance"
+db.version(10).stores({
+  // ADDED: 'status' to the users index
+  users: '++id, &employeeId, &email, role, status', 
+  
+  // ADDED: 'date' and '[employeeId+date]' for fast Admin lookups
   attendance: '++id, employeeId, date, [employeeId+date], status', 
+  
+  // LEAVE: Simple tracking
   leave: '++id, employeeId, status',
+  
+  // PAYROLL: Unique link to employee
   payroll: '++id, &employeeId, baseSalary'
 });
-db.version(5).stores({
-  users: '++id, &employeeId, &email, role', 
-  attendance: '++id, employeeId, date, [employeeId+date], status', 
-  leave: '++id, employeeId, status',
-  payroll: '++id, &employeeId, baseSalary'
+
+// Logic to handle DB opening errors
+db.open().catch((err) => {
+    console.error("Failed to open db:", err.stack || err);
 });
