@@ -1,78 +1,63 @@
-🚀 Dayflow HRMS: The Authority Portal
-Every workday, perfectly aligned.
+🚀 Dayflow HRMS: The Authority Grid
+The future of workforce management, synced in real-time.
 
-Dayflow is a high-performance, real-time Human Resource Management System (HRMS) built for modern teams. It features a robust, role-based architecture that bridges the gap between administrative oversight and employee autonomy through a sleek, high-end "SaaS-style" interface.
+Dayflow is a premium, high-performance Human Resource Management System (HRMS) designed for modern enterprises. It bridges the gap between administrative oversight and employee autonomy using a sleek, glassmorphism-inspired interface and an offline-first, real-time database architecture.
 
-🛠 Tech Stack
-Frontend: React.js (Vite)
+🛠 Technical Architecture
+Frontend: React.js + Vite (Lightning-fast HMR)
 
-Styling: Tailwind CSS (Glassmorphism & SaaS Aesthetic)
+Styling: Tailwind CSS (Modern SaaS Aesthetic)
 
-Database: Dexie.js (High-speed IndexedDB wrapper for offline-first persistence)
+Database: Dexie.js (High-performance IndexedDB wrapper)
+
+Logic Engine: Zod (Strict schema validation) & React Hook Form
 
 Icons: Lucide-React
 
-Validation: Zod + React Hook Form
+✨ Core Functionalities
+🛡 Admin Command Center
+Workforce Statistics: Live monitoring of "Active Now," "Pending Leaves," and "Total Staff" using database hooks.
 
-Animation: Tailwind Animate & Framer-style transitions
+Staff Governance: Full directory access with real-time status pulses and unique OI-ID identity tracking.
 
-✨ Key Features
-🛡 Master Admin Dashboard
-Live Workforce Monitoring: Real-time stats ribbon showing "Active Now," "Pending Leaves," and "Total Staff."
+Dynamic Payroll: Automated derivation of Tax, PF, and HRA based on base salary inputs.
 
-Dynamic Staff Directory: A card-based management system with live status pulse indicators.
-
-Integrated Payroll Command: Direct database manipulation for employee monthly wages with automated HRA/Basic derivation.
-
-Leave Approval Engine: Real-time processing of staff time-off requests.
+Leave Authority: Instant approval/rejection pipeline for staff time-off requests.
 
 👤 Employee Identity Portal
-Real-Time Attendance Tray: One-touch Check-In/Check-Out system that updates the system-wide status dot instantly.
+Live Attendance Tray: A tactile check-in/out system that updates the entire system's status indicators instantly.
 
-Personalized Profile: Automated identity generation (OI-ID) based on legal names and joining year.
+Identity Generation: Automated creation of unique OI-ID tags based on name initials and hiring year.
 
-Salary Breakdown: Visual earnings and deductions table (Basic, HRA, PF, Tax) calculated dynamically from base wages.
+Collaboration Grid: Permission-safe directory to see colleague availability without compromising administrative data.
 
-Collaboration Grid: View team availability at a glance without administrative permissions.
+Personalized Ledger: View dynamic salary breakdowns and attendance history.
 
-⚙ System Intelligence
-Real-Time Sync: Powered by useLiveQuery, ensuring that if an employee checks in, the Admin sees the update in milliseconds without a page refresh.
+⚙ System Resilience & Real-Time Sync
+The system utilizes useLiveQuery to ensure that data is reactive. When an employee checks in, the Admin Dashboard's "Active Now" counter updates immediately without a page refresh.
 
-Defensive Architecture: Built-in "Hard Reset" functionality to force-recreate database schemas and clear local cache during deployment or debugging.
+🔄 The "Hard Reset" Protocol
+To ensure the system remains stable across different development environments or after schema updates, we have implemented a Factory Reset logic:
 
-📸 System Architecture
-🚀 Quick Start & Installation
+Navigate to the Config section in the dashboard.
 
-git clone https://github.com/DeepjyotDhiman/dayflow-hrms.git
-cd dayflow
+Trigger Hard Reset Database.
 
-2. Configure Assets
-Ensure your company logo is placed at: src/assets/Logo.png
+The system wipes all IndexedDB records and refreshes to rebuild a clean schema.
 
-3. Launch Development Server
+🚀 Installation & Setup
+1. Repository Setup
+Bash
+
+git clone https://github.com/your-username/dayflow-hrms.git
+cd dayflow-hrms
+npm install
+2. Assets
+Place your corporate logo at: src/assets/Logo.png
+
+3. Launch Development Mode
 Bash
 
 npm run dev
-🧪 Testing the "Real-Time" Logic
-To demonstrate the "Live Sync" to judges:
-
-Open two separate browser windows (one in Incognito).
-
-Login as Admin in one and Employee in the other.
-
-Click "Check IN" on the Employee Dashboard.
-
-Observe the "Active Now" counter on the Admin Dashboard update instantly without a refresh.
-
-⚠️ Troubleshooting (The "Hard Reset")
-If you experience database schema errors or "Red Status Dots" due to old browser cache:
-
-Navigate to the Employee Dashboard.
-
-Click "System Configuration" at the bottom of the sidebar.
-
-Click "Hard Reset Database".
-
-The system will wipe all old data and recreate a fresh schema on the ne
-Team Zedx - Full Stack Archit
-
+👨‍💻 Developed By
+Team Zedx — Engineering the next generation of work.
