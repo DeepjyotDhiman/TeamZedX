@@ -1,11 +1,14 @@
 import { z } from 'zod';
 
-// 1. Sign Up Schema
+/**
+ * 1. Sign Up Schema
+ * Includes specific alphanumeric validation for the OI-ID format.
+ */
 export const signUpSchema = z.object({
   employeeId: z
     .string()
     .min(3, "ID must be at least 3 characters")
-    .regex(/^[A-Z0-9]+$/, "ID must be alphanumeric (e.g., EMP001)"),
+    .regex(/^[A-Z0-9]+$/, "ID must be alphanumeric (e.g., OIPR20260001)"),
   
   fullName: z.string().min(2, "Full name is required"),
   
@@ -22,13 +25,18 @@ export const signUpSchema = z.object({
   }),
 });
 
-// 2. Login Schema
+/**
+ * 2. Login Schema
+ */
 export const loginSchema = z.object({
   email: z.string().email("Invalid email address"),
   password: z.string().min(1, "Password is required"),
 });
 
-// 3. Leave Request Schema
+/**
+ * 3. Leave Request Schema
+ * Validates that the leave period is logical (Start before End).
+ */
 export const leaveSchema = z.object({
   leaveType: z.enum(["Paid", "Sick", "Unpaid"]),
   startDate: z.string().min(1, "Start date is required"),
@@ -41,4 +49,12 @@ export const leaveSchema = z.object({
 }, {
   message: "End date cannot be before the start date",
   path: ["endDate"],
+});
+
+/**
+ * 4. Payroll Schema (New)
+ * Used by Admin to update employee wages.
+ */
+export const payrollSchema = z.object({
+  baseSalary: z.coerce.number().min(1, "Salary must be greater than 0"),
 });

@@ -1,54 +1,49 @@
 import React, { useState } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../../api/db';
-import { DollarSign, Save } from 'lucide-react';
 
 export default function AdminPayroll() {
   const employees = useLiveQuery(() => db.users.where("role").equals("employee").toArray());
   const [editingId, setEditingId] = useState(null);
-  const [wage, setWage] = useState("");
+  const [tempWage, setTempWage] = useState("");
 
-  const saveWage = async (id) => {
-    const existing = await db.payroll.where("employeeId").equals(id).first();
-    if (existing) {
-      await db.payroll.update(existing.id, { baseSalary: wage });
+  const handleSave = async (empId) => {
+    // Check if payroll record exists
+    const record = await db.payroll.where("employeeId").equals(empId).first();
+    
+    if (record) {
+      await db.payroll.update(record.id, { baseSalary: Number(tempWage) });
     } else {
-      await db.payroll.add({ employeeId: id, baseSalary: wage });
+      await db.payroll.add({ employeeId: empId, baseSalary: Number(tempWage) });
     }
     setEditingId(null);
-    alert("Salary Updated");
+    alert("Salary synchronized with database.");
   };
 
   return (
-    <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
-      <h3 className="text-lg font-bold text-slate-800 mb-6 flex items-center gap-2 italic">
-        <DollarSign className="text-rose-400" /> Payroll Management
-      </h3>
-      <table className="w-full text-left text-sm border-collapse">
-        <thead>
-          <tr className="border-b text-[10px] uppercase font-black text-slate-400">
-            <th className="py-3 px-4">Employee</th>
-            <th className="py-3 px-4">Wage / Month</th>
-            <th className="py-3 px-4">Action</th>
-          </tr>
+    <div className="bg-white p-8 rounded-sm border border-slate-200">
+      <h3 className="text-xl font-black italic mb-6 uppercase tracking-tighter">Payroll Command</h3>
+      <table className="w-full text-left text-sm italic">
+        <thead className="text-[10px] font-black uppercase text-slate-400 border-b">
+          <tr><th className="py-4">Staff Member</th><th className="py-4">Monthly Base</th><th className="py-4">Action</th></tr>
         </thead>
         <tbody>
           {employees?.map(emp => (
-            <tr key={emp.employeeId} className="border-b hover:bg-slate-50 italic">
-              <td className="py-4 px-4 font-bold">{emp.fullName}</td>
-              <td className="py-4 px-4">
+            <tr key={emp.employeeId} className="border-b border-slate-50">
+              <td className="py-4 font-bold text-slate-700">{emp.fullName}</td>
+              <td className="py-4">
                 {editingId === emp.employeeId ? (
-                  <input type="number" value={wage} onChange={(e) => setWage(e.target.value)} className="border-b border-rose-400 outline-none w-24 text-rose-500 font-bold" />
+                  <input autoFocus type="number" value={tempWage} onChange={e => setTempWage(e.target.value)} className="border-b-2 border-rose-500 outline-none w-24 font-black text-rose-500 bg-rose-50" />
                 ) : (
-                  <span className="font-bold">₹{emp.monthlyWage || "Not Set"}</span>
+                  <span className="font-black text-slate-900">₹{emp.monthlyWage || '---'}</span>
                 )}
               </td>
-              <td className="py-4 px-4">
-                <button 
-                  onClick={() => editingId === emp.employeeId ? saveWage(emp.employeeId) : setEditingId(emp.employeeId)}
-                  className="text-[10px] font-black uppercase text-blue-500 hover:underline"
-                >
-                  {editingId === emp.employeeId ? "Save" : "Edit Wage"}
+              <td className="py-4">
+                <button onClick={() => {
+                  if(editingId === emp.employeeId) handleSave(emp.employeeId);
+                  else { setEditingId(emp.employeeId); setTempWage(emp.monthlyWage || ""); }
+                }} className="text-[10px] font-black uppercase text-blue-500 underline">
+                  {editingId === emp.employeeId ? 'Commit' : 'Set Wage'}
                 </button>
               </td>
             </tr>

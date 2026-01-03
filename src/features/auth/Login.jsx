@@ -1,90 +1,109 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useNavigate } from 'react-router-dom';
 import { loginSchema } from './authSchema';
 import { db } from '../../api/db';
 
 export default function Login() {
   const navigate = useNavigate();
-  
-  const { 
-    register, 
-    handleSubmit, 
-    formState: { errors, isSubmitting } 
-  } = useForm({
+  const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm({
     resolver: zodResolver(loginSchema)
   });
 
   const onSubmit = async (data) => {
     try {
       const user = await db.users.where("email").equals(data.email).first();
-
       if (user && user.password === data.password) {
-        // Save current session
         localStorage.setItem('currentUser', JSON.stringify(user));
-        
-        // Redirect based on role
-        if (user.role === 'admin') {
-          navigate('/admin');
-        } else {
-          navigate('/dashboard');
-        }
-      } else {
-        alert("Invalid email or password.");
-      }
-    } catch (err) {
-      console.error("Login error:", err);
-      alert("An error occurred during sign-in.");
-    }
+        navigate(user.role === 'admin' ? '/admin' : '/dashboard');
+      } else { alert("Invalid credentials."); }
+    } catch (err) { alert("Login error."); }
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-6 text-center">
-      <h1 className="text-xl font-bold text-slate-500 mb-10 italic">Human Resource Management System</h1>
-      
-      <div className="bg-white border border-slate-200 p-10 rounded-sm shadow-sm w-full max-w-sm">
-        <h2 className="text-center text-slate-400 font-bold mb-8 italic text-sm underline decoration-slate-100">Sign in Page</h2>
-        
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 text-left">
-          <div className="group">
-            <label className="text-[10px] text-slate-400 font-bold uppercase">Email Address</label>
-            <input 
-              {...register("email")}
-              type="email" 
-              placeholder="you@company.com"
-              className="w-full border-b border-slate-300 py-1 outline-none text-sm italic focus:border-rose-300 transition-colors" 
-            />
-            {errors.email && <p className="text-red-500 text-[10px] mt-1">{errors.email.message}</p>}
-          </div>
-          
-          <div className="group">
-            <label className="text-[10px] text-slate-400 font-bold uppercase">Password</label>
-            <input 
-              {...register("password")}
-              type="password" 
-              placeholder="••••••••"
-              className="w-full border-b border-slate-300 py-1 outline-none text-sm italic focus:border-rose-300 transition-colors" 
-            />
-            {errors.password && <p className="text-red-500 text-[10px] mt-1">{errors.password.message}</p>}
+    <div className="min-h-screen flex bg-white font-sans overflow-hidden">
+      {/* LEFT SIDE: Technical Branding Section */}
+      <div className="hidden lg:flex lg:w-3/5 bg-[#0F172A] flex-col justify-center p-24 relative">
+        {/* Animated Background Grid Pattern */}
+        <div className="absolute inset-0 opacity-20" style={{ 
+          backgroundImage: `linear-gradient(#1E293B 1px, transparent 1px), linear-gradient(90deg, #1E293B 1px, transparent 1px)`,
+          backgroundSize: '40px 40px' 
+        }}></div>
+
+        <div className="relative z-10">
+          {/* CSS-Based Logo Replacement */}
+          <div className="flex items-center gap-3 mb-12">
+            <div className="w-10 h-10 bg-rose-500 rounded-lg rotate-12 flex items-center justify-center shadow-lg shadow-rose-500/20">
+               <div className="w-5 h-5 border-2 border-white rounded-sm"></div>
+            </div>
+            <span className="text-2xl font-black text-white tracking-tighter italic uppercase">Dayflow.</span>
           </div>
 
-          <button 
-            type="submit"
-            disabled={isSubmitting}
-            className="w-full bg-rose-400 text-white font-bold py-2 mt-4 rounded-sm uppercase tracking-widest text-[10px] shadow-lg shadow-rose-100 hover:bg-rose-500 transition-all disabled:opacity-50"
-          >
-            {isSubmitting ? "Signing In..." : "Sign In"}
-          </button>
+          <h1 className="text-7xl font-black text-white italic leading-[0.9] mb-8 tracking-tighter">
+            THE FUTURE <br />
+            <span className="text-rose-500">OF WORK</span> <br />
+            IS ALIGNED.
+          </h1>
           
-          <div className="flex justify-between mt-6 text-[10px] italic">
-             <span onClick={() => navigate('/register')} className="text-rose-400 cursor-pointer font-bold underline">Create New Account</span>
-             <span className="text-slate-300 cursor-not-allowed">Forgot Password?</span>
-          </div>
-        </form>
+          <div className="h-1 w-24 bg-rose-500 mb-8"></div>
+          
+          <p className="text-slate-400 text-xl max-w-sm italic font-medium leading-relaxed">
+            A unified intelligence layer for your human resources. Automated, secure, and beautiful.
+          </p>
+        </div>
+
+        {/* Footer info inside branding */}
+        <div className="mt-auto relative z-10 flex gap-8 text-[10px] font-bold uppercase tracking-widest text-slate-500">
+           <span>Core Engine v4.0</span>
+           <span>IndexedDB Persistence</span>
+        </div>
       </div>
-      
-      <p className="mt-10 text-[9px] text-slate-300 font-bold uppercase tracking-widest">© 2026 Dayflow HR Solutions</p>
+
+      {/* RIGHT SIDE: Clean Portal Section */}
+      <div className="w-full lg:w-2/5 flex items-center justify-center p-12 bg-slate-50">
+        <div className="w-full max-w-sm">
+          <div className="mb-12">
+            <h2 className="text-4xl font-black text-slate-900 italic tracking-tighter mb-2">Sign In.</h2>
+            <p className="text-slate-400 font-bold text-[10px] uppercase tracking-[0.2em]">Authorized Access Only</p>
+          </div>
+
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-10">
+            <div className="space-y-1 group">
+              <label className="text-[10px] text-slate-400 font-black uppercase tracking-widest group-focus-within:text-rose-500 transition-colors">Credential Email</label>
+              <input 
+                {...register("email")}
+                placeholder="id@dayflow.sys"
+                className="w-full border-b-2 border-slate-200 py-3 bg-transparent outline-none text-sm font-bold italic focus:border-rose-500 transition-all placeholder:text-slate-200" 
+              />
+              {errors.email && <p className="text-rose-500 text-[9px] font-black mt-1 italic uppercase">{errors.email.message}</p>}
+            </div>
+            
+            <div className="space-y-1 group">
+              <label className="text-[10px] text-slate-400 font-black uppercase tracking-widest group-focus-within:text-rose-500 transition-colors">Secure Key</label>
+              <input 
+                {...register("password")}
+                type="password" 
+                placeholder="••••••••"
+                className="w-full border-b-2 border-slate-200 py-3 bg-transparent outline-none text-sm font-bold italic focus:border-rose-400 transition-all placeholder:text-slate-200" 
+              />
+              {errors.password && <p className="text-rose-500 text-[9px] font-black mt-1 italic uppercase">{errors.password.message}</p>}
+            </div>
+
+            <button 
+              type="submit"
+              disabled={isSubmitting}
+              className="w-full bg-slate-900 text-white font-black py-5 rounded-sm shadow-2xl hover:bg-rose-500 transition-all uppercase tracking-widest text-[11px] active:scale-95 disabled:opacity-50"
+            >
+              {isSubmitting ? "Authenticating..." : "Connect to Server"}
+            </button>
+            
+            <p className="text-center text-[10px] text-slate-400 italic">
+              New Authority? <span onClick={() => navigate('/register')} className="text-rose-500 cursor-pointer font-black underline hover:text-slate-900">Request Identity</span>
+            </p>
+          </form>
+        </div>
+      </div>
     </div>
   );
 }

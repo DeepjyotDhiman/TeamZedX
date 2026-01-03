@@ -29,3 +29,9 @@ db.version(4).stores({
   leave: '++id, employeeId, status',
   payroll: '++id, &employeeId, baseSalary'
 });
+db.version(5).stores({
+  users: '++id, &employeeId, &email, role', 
+  attendance: '++id, employeeId, date, [employeeId+date], status', 
+  leave: '++id, employeeId, status',
+  payroll: '++id, &employeeId, baseSalary'
+});

@@ -3,39 +3,55 @@ import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../../api/db';
 
 export default function EmployeePayroll() {
-  const user = JSON.parse(localStorage.getItem('currentUser'));
+  const sessionUser = JSON.parse(localStorage.getItem('currentUser'));
   
-  // Use useLiveQuery to prevent white screen while loading
-  const payroll = useLiveQuery(
-    () => db.payroll.where("employeeId").equals(user?.employeeId).first(),
-    [user]
+  // Real-time hook to fetch salary for the logged-in user
+  const data = useLiveQuery(
+    () => db.payroll.where("employeeId").equals(sessionUser?.employeeId).first(),
+    [sessionUser]
   );
 
-  // Default values if HR hasn't set the salary yet
-  const wage = payroll?.baseSalary || 0;
+  // Math components
+  const wage = data?.baseSalary || 0;
   const basic = wage * 0.5;
   const hra = basic * 0.5;
+  const pf = wage > 0 ? 3000 : 0;
+  const tax = wage > 0 ? 200 : 0;
 
   return (
-    <div className="space-y-8 animate-in fade-in">
-       <div className="flex gap-12 text-sm italic font-bold">
-          <p>Month Wage: <span className="border-b border-slate-300 px-4">₹{wage}</span></p>
-          <p>Yearly Wage: <span className="border-b border-slate-300 px-4">₹{wage * 12}</span></p>
-       </div>
-       {wage === 0 && <p className="text-[10px] text-rose-400 italic">No salary data found. HR needs to set your wage.</p>}
-       
-       <div className="grid grid-cols-2 gap-10">
-          <div className="space-y-4">
-             <h4 className="font-bold text-slate-800 text-sm border-b pb-1">Salary Components</h4>
-             <div className="flex justify-between border-b pb-1 text-xs"><span>Basic Salary</span> <span>₹{basic}</span></div>
-             <div className="flex justify-between border-b pb-1 text-xs"><span>HRA</span> <span>₹{hra}</span></div>
+    <div className="space-y-10 animate-in fade-in">
+       <div className="flex gap-12 items-center">
+          <div className="bg-slate-900 text-white p-6 rounded-sm">
+             <p className="text-[10px] uppercase font-bold opacity-50 mb-1">Gross Monthly</p>
+             <p className="text-3xl font-black italic">₹{wage}</p>
           </div>
-          <div className="space-y-4">
-             <h4 className="font-bold text-slate-800 text-sm border-b pb-1">Deductions</h4>
-             <div className="flex justify-between border-b pb-1 text-xs text-rose-500"><span>PF</span> <span>-₹3000</span></div>
-             <div className="flex justify-between border-b pb-1 text-xs text-rose-500"><span>Professional Tax</span> <span>-₹200</span></div>
+          <div className="text-slate-400 italic">
+             <p className="text-sm">Yearly Projection</p>
+             <p className="text-xl font-bold">₹{wage * 12}</p>
           </div>
        </div>
+
+       <div className="grid grid-cols-2 gap-20">
+          <div className="space-y-4">
+             <h4 className="text-[10px] font-black uppercase text-slate-400 border-b pb-2">Earnings Breakdown</h4>
+             <SalaryLine label="Basic Salary (50%)" value={basic} />
+             <SalaryLine label="HRA (50% of Basic)" value={hra} />
+          </div>
+          <div className="space-y-4">
+             <h4 className="text-[10px] font-black uppercase text-slate-400 border-b pb-2">Standard Deductions</h4>
+             <SalaryLine label="Provident Fund" value={pf} isRed />
+             <SalaryLine label="Professional Tax" value={tax} isRed />
+          </div>
+       </div>
+    </div>
+  );
+}
+
+function SalaryLine({ label, value, isRed }) {
+  return (
+    <div className="flex justify-between text-sm italic font-bold">
+      <span className="text-slate-500">{label}</span>
+      <span className={isRed ? 'text-rose-500' : 'text-slate-900'}>{isRed ? '-' : ''}₹{value}</span>
     </div>
   );
 }
