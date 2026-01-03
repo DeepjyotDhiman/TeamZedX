@@ -1,84 +1,75 @@
-import React from 'react';
-import { LogOut, User, Calendar, Clock, LayoutDashboard, Briefcase, ChevronRight } from 'lucide-react';
-import AttendanceToggle from '../features/attendance/AttendanceToggle';
-import LeaveRequestForm from '../features/leave/LeaveRequestForm';
-import LeaveHistory from '../features/leave/LeaveHistory';
-import EmployeePayroll from '../features/payroll/EmployeePayroll';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Users, Clock, Calendar, User, LogOut } from 'lucide-react';
+import AttendanceList from '../features/attendance/AttendanceList';
+import TimeOffView from '../features/timeoff/TimeOffView';
+import ProfilePage from './ProfilePage';
+import EmployeeGrid from '../components/EmployeeGrid';
 
 export default function EmployeeDashboard() {
-  const user = JSON.parse(localStorage.getItem('currentUser'));
+  const [activeTab, setActiveTab] = useState('directory');
+  const [isCheckedIn, setIsCheckedIn] = useState(false);
+  const navigate = useNavigate();
 
-  const handleLogout = () => {
-    localStorage.clear();
-    window.location.href = '/login';
-  };
+  const handleLogout = () => navigate('/login');
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC]">
-      {/* Top Navigation */}
-      <nav className="bg-white/80 backdrop-blur-md border-b border-slate-200 sticky top-0 z-30">
-        <div className="max-w-7xl mx-auto px-6 h-16 flex justify-between items-center">
-          <div className="flex items-center gap-2">
-            <div className="bg-blue-600 p-1.5 rounded-lg text-white">
-              <LayoutDashboard size={20} />
-            </div>
-            <span className="text-xl font-black text-slate-900 tracking-tight">Dayflow</span>
+    <div className="flex min-h-screen bg-[#F8FAFC]">
+      <aside className="w-64 bg-white border-r border-slate-200 flex flex-col fixed h-full shadow-sm">
+        <div className="p-6 border-b border-slate-100">
+          <div className="border border-slate-300 px-3 py-1 text-[10px] font-bold text-slate-400 uppercase tracking-tighter">Company Logo</div>
+          <p className="text-[10px] text-blue-500 font-bold mt-2 uppercase italic">Employee Portal</p>
+        </div>
+
+        <nav className="flex-1 p-4 space-y-1">
+          <SidebarBtn active={activeTab === 'directory'} onClick={() => setActiveTab('directory')} icon={<Users size={18}/>} label="Employee Directory" />
+          <SidebarBtn active={activeTab === 'attendance'} onClick={() => setActiveTab('attendance')} icon={<Clock size={18}/>} label="My Attendance" />
+          <SidebarBtn active={activeTab === 'timeoff'} onClick={() => setActiveTab('timeoff')} icon={<Calendar size={18}/>} label="My Time Off" />
+          <SidebarBtn active={activeTab === 'profile'} onClick={() => setActiveTab('profile')} icon={<User size={18}/>} label="My Profile" />
+        </nav>
+
+        {/* Sidebar Attendance Tray */}
+        <div className="p-4 border-t border-slate-100">
+          <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100 mb-4 text-center">
+            <p className="text-[9px] font-black text-slate-300 uppercase mb-2">Since 00:00 PM</p>
+            <button 
+              onClick={() => setIsCheckedIn(!isCheckedIn)}
+              className={`w-full py-2 rounded-lg text-[10px] font-bold uppercase transition-all shadow-sm ${
+                isCheckedIn ? 'bg-rose-50 text-rose-500 border border-rose-100' : 'bg-emerald-50 text-emerald-600 border border-emerald-100'
+              }`}
+            >
+              {isCheckedIn ? 'Check Out' : 'Check IN'}
+            </button>
           </div>
-          <button onClick={handleLogout} className="text-slate-500 hover:text-red-600 font-medium text-sm flex items-center gap-2 transition-colors">
-            <LogOut size={18} /> Logout
+          <button onClick={handleLogout} className="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold text-slate-400 hover:text-rose-500 transition-colors">
+            <LogOut size={18}/> Logout
           </button>
         </div>
-      </nav>
+      </aside>
 
-      <main className="max-w-7xl mx-auto px-6 py-10 space-y-10">
-        {/* Welcome Hero */}
-        <section className="bg-white p-8  border-radius: 2rem  border border-slate-200 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-6 relative overflow-hidden">
-          <div className="relative z-10">
-            <h2 className="text-4xl font-black text-slate-900 leading-tight">Good day, <br /><span className="text-blue-600">{user?.fullName}</span></h2>
-            <div className="flex gap-4 mt-4">
-              <span className="flex items-center gap-1.5 text-slate-500 text-sm font-semibold bg-slate-100 px-3 py-1 rounded-full uppercase tracking-wider">
-                <Briefcase size={14} /> {user?.employeeId}
-              </span>
-            </div>
+      <main className="flex-1 ml-64">
+        <header className="bg-white border-b border-slate-200 px-8 py-4 flex justify-between items-center sticky top-0 z-10">
+          <h2 className="text-xl font-bold italic text-slate-700 underline decoration-slate-100">{activeTab.replace('-', ' ')}</h2>
+          <div className="flex items-center gap-3">
+             <div className={`w-3 h-3 rounded-full border-2 border-white shadow-sm ${isCheckedIn ? 'bg-emerald-500' : 'bg-rose-500'}`} />
+             <span className="text-[10px] font-black text-slate-400 uppercase tracking-tighter">Status: {isCheckedIn ? 'Present' : 'Absent'}</span>
           </div>
-          <div className="w-full md:w-80 relative z-10">
-            <AttendanceToggle employeeId={user?.employeeId} />
-          </div>
-          {/* Decorative Background element */}
-          <div className="absolute -right-20 -top-20 w-64 h-64 bg-blue-50 rounded-full blur-3xl opacity-60"></div>
-        </section>
-
-        {/* Bento Grid Content */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-          
-          {/* Left Column: Payroll & Stats */}
-          <div className="lg:col-span-4 space-y-8">
-            <EmployeePayroll employeeId={user?.employeeId} />
-            
-            <div className="bg-slate-900 text-white p-8  border-radius: 2rem  shadow-xl">
-              <h3 className="font-bold text-lg mb-2">Policy Updates</h3>
-              <p className="text-slate-400 text-sm leading-relaxed mb-6">Review the updated 2026 Leave Policy document in your profile settings.</p>
-              <button className="flex items-center gap-2 text-blue-400 font-bold text-sm hover:gap-3 transition-all">
-                Download PDF <ChevronRight size={16} />
-              </button>
-            </div>
-          </div>
-
-          {/* Right Column: Leave Management */}
-          <div className="lg:col-span-8 space-y-8">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
-              <LeaveRequestForm employeeId={user?.employeeId} />
-              <div className="space-y-4">
-                 <h3 className="text-xl font-bold text-slate-900 flex items-center gap-2 px-2">
-                   <Calendar className="text-purple-600" /> Recent Requests
-                 </h3>
-                 <LeaveHistory employeeId={user?.employeeId} />
-              </div>
-            </div>
-          </div>
-
+        </header>
+        <div className="p-8">
+          {activeTab === 'directory' && <EmployeeGrid isAdmin={false} />}
+          {activeTab === 'attendance' && <AttendanceList isAdmin={false} />}
+          {activeTab === 'timeoff' && <TimeOffView isAdmin={false} />}
+          {activeTab === 'profile' && <ProfilePage isAdmin={false} />}
         </div>
       </main>
     </div>
+  );
+}
+
+function SidebarBtn({ active, onClick, icon, label }) {
+  return (
+    <button onClick={onClick} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all ${active ? 'bg-blue-50 text-blue-600 shadow-sm' : 'text-slate-500 hover:bg-slate-50'}`}>
+      {icon} {label}
+    </button>
   );
 }

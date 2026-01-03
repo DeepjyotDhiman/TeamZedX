@@ -1,27 +1,27 @@
+import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 
-// Auth Features
+// Auth Features - matching your folder structure
 import Login from './features/auth/Login';
 import Register from './features/auth/Register';
 
-// Routes & Protection
+// Routes Protection
 import ProtectedRoute from './routes/ProtectedRoute';
 
-// Pages
+// Pages - matching your folder structure
 import EmployeeDashboard from './pages/EmployeeDashboard';
 import AdminDashboard from './pages/AdminDashboard';
+import ProfilePage from './pages/ProfilePage';
 
 function App() {
   return (
     <Router>
       <Routes>
-        {/* Public Routes: Accessible by anyone */}
+        {/* Public Routes */}
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
 
-        {/* Employee Routes: 
-          Requires 'employee' role and provides access to personal stats [cite: 14, 23, 39]
-        */}
+        {/* Employee Dashboard */}
         <Route 
           path="/dashboard" 
           element={
@@ -31,9 +31,7 @@ function App() {
           } 
         />
 
-        {/* Admin/HR Routes: 
-          Requires 'admin' role and provides management/approval privileges [cite: 13, 22, 46]
-        */}
+        {/* Admin Dashboard */}
         <Route 
           path="/admin" 
           element={
@@ -43,10 +41,18 @@ function App() {
           } 
         />
 
-        {/* Root Redirect: Ensures users start at the Login page  */}
-        <Route path="/" element={<Navigate to="/login" replace />} />
+        {/* My Profile Page - accessed via dashboard */}
+        <Route 
+          path="/profile" 
+          element={
+            <ProtectedRoute allowedRole="employee">
+              <ProfilePage />
+            </ProtectedRoute>
+          } 
+        />
 
-        {/* 404 Redirect: Catch-all for undefined routes */}
+        {/* Default Redirects */}
+        <Route path="/" element={<Navigate to="/login" replace />} />
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     </Router>
